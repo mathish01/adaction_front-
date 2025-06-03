@@ -1,6 +1,7 @@
 'use client';
 
 import { CircleAlert } from 'lucide-react';
+
 export default function CollectePage() {
   return (
     <div>
