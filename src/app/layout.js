@@ -1,5 +1,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Link from 'next/link';
+import Navbar from './navbar'; // adapte le chemin si besoin
+import { Recycle } from 'lucide-react';
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,10 +22,25 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="fr">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
+        <header>
+          <div className="header-content">
+            <div className="logo-title">
+              <Recycle className="icon" size={32} />
+              <h1>Adaction</h1>
+            </div>
+            <p>Agir pour un environnement plus propre</p>
+          </div>
+        </header>
+          <Navbar />
+        <main>{children}</main>
+        <footer>
+          <p className="info-text">🌱 Merci d'agir pour la planète. Vous faites partie du changement.</p>
+        </footer>
       </body>
     </html>
   );
 }
+
+
