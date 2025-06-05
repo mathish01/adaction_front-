@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, use } from "react"; 
 import styles from "./manage-users.module.css"; 
+import { lastDayOfDecade } from "date-fns";
 
 
 export async function searchVolunteers(query) {
@@ -14,12 +15,64 @@ export async function searchVolunteers(query) {
     return await response.json()
 };
 
+
+export async function deleteVolunteers(id) {
+
+    const API_URL = 'http://localhost:3001/api/volunteers';
+
+    const response = await fetch(`${API_URL}/${id}`, {
+        method:'DELETE',
+    });
+
+    if (!response.ok) {
+        throw new Error(`Erreur de supression: ${response.status}`);
+    }
+
+    return await response.json(); 
+}
+
+
+
+export async function updateVolunteer(id, updateData) {
+    const API_URL = 'http://localhost:3001/api/volunteers'; 
+
+    const response = await fetch(`${API_URL}/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData),
+    });
+
+    if (!response.ok) {
+          throw new Error(`Erreur lors de la mise à jour: ${response.status}`);
+    }
+
+    return await response.json()
+}
+
+
+
 // Function pour l'ensemble de la liste des volontaires dans l'API. 
 export default function VolunteersList() {
     const [volunteers, setVolunteers] = useState([]);
     const [searchTerm, setSearchTerm] = useState(''); 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null); 
+    const [selectedCity, setSelectedCity] = useState('Toutes les villes');
+    const [showCityDropdown, setShowCityDropdown] = useState(false);
+    const [showAddForm, setShowAddForm] = useState(false); 
+    const [success, setSuccess] = useState(false); 
+
+    const [formData, setFormData] = useState({
+        firstname: '',
+        lastname: '',
+        mail: '',
+        password: '',
+        location: ''
+    });
+
+const cities = ['Toutes les villes',  'Paris', 'Lyon', 'Marseille', 'Nice', 'Toulouse', 'Bordeaux']; 
 
     // URL de ton API 
     const API_URL = 'http://localhost:3001/api/volunteers';
@@ -69,7 +122,7 @@ const handleSearchSubmit = async (e) => {
     } finally {
         setLoading(false); 
     }
-}
+};
 
 
     const handleUpdate = async (id, updatedData) => {
@@ -99,283 +152,263 @@ const handleSearchSubmit = async (e) => {
         }
     }
 
+const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+        setSuccess(false); 
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', 
+                },
+                body: JSON.stringify(formData)
+            }); 
+
+            if (!response.ok) {
+                throw new Error(`Erreur: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('Bénévole ajouté', result);
+
+            setSuccess(true);
+            setVolunteers(prev => [...prev, result]);
+
+            setFormData({
+                firstname: '',
+                lastname: '',
+                mail: '',
+                password: '',
+                location: ''
+            });
+            setShowAddForm(false);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false); 
+        }
+    };
+
+    const filteredVolunteers = volunteers.filter(volunteer => {
+        const matchesCity = selectedCity === 'Toutes les villes' || volunteer.location === selectedCity;
+        return matchesCity;
+    });
+
     if (loading) return <div>Chargement...</div>;
     if (error) return <div>Erreur serveur: {error}</div>;
 
    return (
-        <div className="volunteers-container">
-             {/* 🔍 Barre de recherche */}
+          <div style={styles.container}>
+            {/* Header */}
+            <div style={styles.header}>
+                <div style={styles.headerTitle}>
+                    <span style={{ fontSize: '24px' }}>♻️</span>
+                    <h1 style={styles.headerTitleText}>Adaction</h1>
+                </div>
+                <p style={styles.headerSubtitle}>
+                    Agir pour un environnement plus propre
+                </p>
+            </div>
 
-            <form onSubmit={handleSearchSubmit}>
-                <input
-                    type="text"
-                    placeholder="🔍 Rechercher un bénévole"
-                    className={styles.searchInput}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </form>
+            {/* Navigation Tabs */}
+            <div style={styles.navigation}>
+                <div style={styles.navItemActive}>
+                    <span style={styles.navIcon}>👥</span>
+                    <span style={styles.navTextActive}>
+                        Gestion des bénévoles
+                    </span>
+                </div>
+                <div style={styles.navItem}>
+                    <span style={styles.navIconInactive}>🏆</span>
+                    <span style={styles.navTextInactive}>
+                        Leaderboard
+                    </span>
+                </div>
+            </div>
 
-            {/* Volunteers List */}
-            <div className="volunteers-list">
-                {volunteers.length === 0 ? (
-                    <p style={{textAlign: 'center', padding: '20px', color: '#666'}}>
-                        Aucun bénévole trouvé
-                    </p>
-                ) : (
-                    volunteers.map((volunteer) => (
-                        <div key={volunteer.id} className="volunteer-card">
-                            <div className="volunteer-info">
-                                <h3>{volunteer.firstname} {volunteer.lastname}</h3>
-                                <p>{volunteer.mail}</p>
-                                {volunteer.location && <p>{volunteer.location}</p>}
-                            </div>
+            <div style={styles.mainContainer}>
+                {/* Add Volunteer Button */}
+                <button
+                    onClick={() => setShowAddForm(!showAddForm)}
+                    style={styles.addButton}
+                >
+                    <span>👥</span>
+                    Ajouter un.e bénévole
+                </button>
 
+                {/* Add Volunteer Form */}
+                {showAddForm && (
+                    <div style={styles.formContainer}>
+                        <input
+                            type="text"
+                            name="firstname"
+                            placeholder="Prénom"
+                            value={formData.firstname}
+                            onChange={handleInputChange}
+                            required
+                            style={styles.inputField}
+                        />
+
+                        <input
+                            type="text"
+                            name="lastname"
+                            placeholder="Nom"
+                            value={formData.lastname}
+                            onChange={handleInputChange}
+                            required
+                            style={styles.inputField}
+                        />
+
+                        <input
+                            type="email"
+                            name="mail"
+                            placeholder="Email"
+                            value={formData.mail}
+                            onChange={handleInputChange}
+                            required
+                            style={styles.inputField}
+                        />
+
+                        <input
+                            type="password"
+                            name="password"
+                            placeholder="Mot de passe"
+                            value={formData.password}
+                            onChange={handleInputChange}
+                            required
+                            style={styles.inputField}
+                        />
+
+                        <input
+                            type="text"
+                            name="location"
+                            placeholder="Localisation"
+                            value={formData.location}
+                            onChange={handleInputChange}
+                            style={styles.inputField}
+                        />
+
+                        <div style={styles.buttonContainer}>
                             <button 
-                            onClick={() => handleDelete(volunteer.id)}
-                            className={styles.deleteButton} 
+                                onClick={handleSubmit}
+                                disabled={loading}
+                                style={styles.submitButton}
                             >
-                                🗑️ 
+                                {loading ? 'Ajout en cours...' : 'Confirmer l\'ajout'}
                             </button>
 
                             <button 
-                            onClick={() => handleUpdate(volunteer.id)}
-                            className={styles.updateButton}
+                                onClick={() => setShowAddForm(false)}
+                                style={styles.cancelButton}
                             >
-                                ✏️ 
+                                Annuler
                             </button>
                         </div>
-                    ))
+                    </div>
                 )}
+
+                {success && <div style={styles.success}>Bénévole ajouté avec succès !</div>}
+
+                {/* Barre de recherche */}
+                <input
+                    type="text"
+                    placeholder="🔍 Rechercher un.e bénévole"
+                    style={styles.searchInput}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                            handleSearchSubmit(e);
+                        }
+                    }}
+                />
+
+                {/* City Filter */}
+                <div style={{ position: 'relative' }}>
+                    <button
+                        onClick={() => setShowCityDropdown(!showCityDropdown)}
+                        style={styles.cityButton}
+                    >
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span>📍</span>
+                            {selectedCity}
+                        </span>
+                        <span>▼</span>
+                    </button>
+                    
+                    {showCityDropdown && (
+                        <div style={styles.cityDropdown}>
+                            {cities.map(city => (
+                                <div
+                                    key={city}
+                                    onClick={() => {
+                                        setSelectedCity(city);
+                                        setShowCityDropdown(false);
+                                    }}
+                                    style={{
+                                        ...styles.cityOption,
+                                        backgroundColor: selectedCity === city ? '#f0f8ff' : 'white'
+                                    }}
+                                >
+                                    {city}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Volunteers List */}
+                <div>
+                    {filteredVolunteers.length === 0 ? (
+                        <p style={styles.noResults}>
+                            Aucun bénévole trouvé
+                        </p>
+                    ) : (
+                        filteredVolunteers.map((volunteer) => (
+                            <div key={volunteer.id} style={styles.volunteerCard}>
+                                <div style={styles.volunteerInfo}>
+                                    <h3 style={styles.volunteerName}>
+                                        {volunteer.firstname} {volunteer.lastname}
+                                    </h3>
+                                    <p style={styles.volunteerEmail}>{volunteer.mail}</p>
+                                    {volunteer.location && (
+                                        <p style={styles.volunteerLocation}>
+                                            📍 {volunteer.location}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div style={styles.actionButtons}>
+                                    <button 
+                                        onClick={() => handleUpdate(volunteer.id)}
+                                        style={styles.updateButton}
+                                    >
+                                        ✏️ 
+                                    </button>
+
+                                    <button 
+                                        onClick={() => handleDelete(volunteer.id)}
+                                        style={styles.deleteButton} 
+                                    >
+                                        🗑️ 
+                                    </button>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
             </div>
         </div>
     );
 }
-
-
-//////////////////////////////////////////////////////////////////////////////////////
-
-// Fonction pour ajouter un volontaire 
-
-export function AddVolunteers() {
-const [formData, setFormData] = useState({
-    firstname: '',
-    lastname: '',
-    mail: '',
-    password: '',
-    location: ''
-});
-
-const [loading, setLoading] = useState(false);
-const [success, setSuccess] = useState(false);
-const [error, setError] = useState(null); 
-
-const API_URL = 'http://localhost:3001/api/volunteers';
-
-
-//  const wasteTypes = [
-//         { value: 'cigarette', label: 'Cigarette' },
-//         { value: 'electronic', label: 'Électronique' },
-//         { value: 'glass', label: 'Verre' },
-//         { value: 'metal', label: 'Métal' },
-//         { value: 'other', label: 'Autres' },
-//         { value: 'plastic', label: 'Plastiques' },
-//     ];
-
-
-const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-        ...prev,
-        [name]: value
-    }));
-};
-
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(false); 
-
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json', 
-            },
-            body: JSON.stringify(formData)
-        }); 
-
-        if (!response.ok) {
-            throw new Error(`Erreur: ${response.status}`);
-        }
-
-        const result = await response.json();
-        console.log('Bénévole ajouté', result);
-
-        setSuccess(true);
-
-        setFormData({
-            firstname: '',
-            lastname: '',
-            mail: '',
-            password: '',
-            location: ''
-        });
-    } catch (err) {
-        setError(err.message);
-    } finally {
-        setLoading(false); 
-    }
-};
-
-const handleCancel = () => {
-    console.log('Annulation du formulaire');
-}
-
-if (loading) return <div>Chargement...</div>; 
-
- return (
-        <div>
-            <button className={styles.buttonGreen}>
-                👥 Ajouter un bénévole
-            </button>
-
-            <div className={styles.searchContainer}>
-                <input 
-                    type="text" 
-                    placeholder="Rechercher un bénévolé"
-                    className={styles.searchInput}
-                />
-            </div>
-
-            <div className={styles.cityFilter}>
-                <button className={styles.cityButton}>
-                    📍 Toutes les villes ▼
-                </button>
-            </div>
-
-            {success && <div className={styles.successMsg}>Bénévole ajouté avec succès !</div>}
-            {error && <div className={styles.errorMsg}>Erreur: {error}</div>}
-
-            <div className={styles.formContainer}>
-                <form onSubmit={handleSubmit}>
-                    <input
-                        type="text"
-                        name="firstname"
-                        placeholder="Prénom"
-                        value={formData.firstname}
-                        onChange={handleInputChange}
-                        required
-                        className={styles.inputField}
-                    />
-
-                    <input
-                        type="text"
-                        name="lastname"
-                        placeholder="Nom"
-                        value={formData.lastname}
-                        onChange={handleInputChange}
-                        required
-                        className={styles.inputField}
-                    />
-
-                    <input
-                        type="email"
-                        name="mail"
-                        placeholder="Email"
-                        value={formData.mail}
-                        onChange={handleInputChange}
-                        required
-                        className={styles.inputField}
-                    />
-
-                    <input
-                        type="password"
-                        name="password"
-                        placeholder="Mot de passe"
-                        value={formData.password}
-                        onChange={handleInputChange}
-                        required
-                        className={styles.inputField}
-                    />
-
-                    <input
-                        type="text"
-                        name="location"
-                        placeholder="Localisation"
-                        value={formData.location}
-                        onChange={handleInputChange}
-                        className={styles.inputField}
-                    />
-
-
-                    <button 
-                        type="submit" 
-                        disabled={loading}
-                        className={styles.submitButton}
-                        style={{ cursor: loading ? 'not-allowed' : 'pointer' }}
-                    >
-                        {loading ? 'Ajout en cours...' : 'Confirmer l\'ajout'}
-                    </button>
-
-                    <button 
-                        type="button" 
-                        onClick={handleCancel}
-                        className={styles.cancelButton}
-                    >
-                        Annuler
-                    </button>
-                </form>
-            </div>
-        </div>
-    )
-}
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Fonction pour supprimer un volontaire : 
-
-export async function deleteVolunteers(id) {
-
-    const API_URL = 'http://localhost:3001/api/volunteers';
-
-    const response = await fetch(`${API_URL}/${id}`, {
-        method:'DELETE',
-    });
-
-    if (!response.ok) {
-        throw new Error(`Erreur de supression: ${response.status}`);
-    }
-
-    return await response.json(); 
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Fonction pour modifier un volontaire : 
-
-export async function updateVolunteer(id, updateData) {
-    const API_URL = 'http://localhost:3001/api/volunteers'; 
-
-    const response = await fetch(`${API_URL}/${id}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updateData),
-    });
-
-    if (!response.ok) {
-          throw new Error(`Erreur lors de la mise à jour: ${response.status}`);
-    }
-
-    return await response.json()
-}
-
-//////////////////////////////////////////////////////////////////////////////////
-
-
