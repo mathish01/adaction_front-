@@ -1,10 +1,23 @@
 'use client'
 import { useState, useEffect, use } from "react"; 
 import styles from "./manage-users.module.css"; 
-import { headers } from "next/headers";
 
+
+export async function searchVolunteers(query) {
+
+    const API_URL = 'http://localhost:3001/api/volunteers';
+    const response = await fetch(`${API_URL}/search?query=${encodeURIComponent(query)}`);
+    
+    if (!response.ok) {
+        throw new Error(`Erreur lors de la recherche: ${response.status}`);
+    } 
+    return await response.json()
+};
+
+// Function pour l'ensemble de la liste des volontaires dans l'API. 
 export default function VolunteersList() {
     const [volunteers, setVolunteers] = useState([]);
+    const [searchTerm, setSearchTerm] = useState(''); 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null); 
 
@@ -29,6 +42,34 @@ export default function VolunteersList() {
 
         fetchVolunteers(); 
     }, []);
+
+const handleSearchSubmit = async (e) => {
+    e.preventDefault(); //Empêche le rechargement de la page
+    if (searchTerm.trim() === "") {
+        setLoading(true); 
+        try {
+            const response = await fetch(API_URL);
+            const data = await response.json()
+            setVolunteers(data);
+            setError(null)
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false); 
+        }
+        return; 
+    }
+    try {
+        setLoading(true);
+        const results = await searchVolunteers(searchTerm);
+        setVolunteers(results);
+        setError(null);
+    } catch (err) {
+        setError(err.message);
+    } finally {
+        setLoading(false); 
+    }
+}
 
 
     const handleUpdate = async (id, updatedData) => {
@@ -63,6 +104,18 @@ export default function VolunteersList() {
 
    return (
         <div className="volunteers-container">
+             {/* 🔍 Barre de recherche */}
+
+            <form onSubmit={handleSearchSubmit}>
+                <input
+                    type="text"
+                    placeholder="🔍 Rechercher un bénévole"
+                    className={styles.searchInput}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </form>
+
             {/* Volunteers List */}
             <div className="volunteers-list">
                 {volunteers.length === 0 ? (
@@ -82,14 +135,14 @@ export default function VolunteersList() {
                             onClick={() => handleDelete(volunteer.id)}
                             className={styles.deleteButton} 
                             >
-                                🗑️ Supprimer
+                                🗑️ 
                             </button>
 
                             <button 
-                            onClick={() => handleUpdate(volunteer.id, updatedData)}
+                            onClick={() => handleUpdate(volunteer.id)}
                             className={styles.updateButton}
                             >
-                                ✏️ Modifier
+                                ✏️ 
                             </button>
                         </div>
                     ))
@@ -102,6 +155,7 @@ export default function VolunteersList() {
 
 //////////////////////////////////////////////////////////////////////////////////////
 
+// Fonction pour ajouter un volontaire 
 
 export function AddVolunteers() {
 const [formData, setFormData] = useState({
@@ -119,14 +173,14 @@ const [error, setError] = useState(null);
 const API_URL = 'http://localhost:3001/api/volunteers';
 
 
- const wasteTypes = [
-        { value: 'cigarette', label: 'Cigarette' },
-        { value: 'electronic', label: 'Électronique' },
-        { value: 'glass', label: 'Verre' },
-        { value: 'metal', label: 'Métal' },
-        { value: 'other', label: 'Autres' },
-        { value: 'plastic', label: 'Plastiques' },
-    ];
+//  const wasteTypes = [
+//         { value: 'cigarette', label: 'Cigarette' },
+//         { value: 'electronic', label: 'Électronique' },
+//         { value: 'glass', label: 'Verre' },
+//         { value: 'metal', label: 'Métal' },
+//         { value: 'other', label: 'Autres' },
+//         { value: 'plastic', label: 'Plastiques' },
+//     ];
 
 
 const handleInputChange = (e) => {
@@ -282,6 +336,8 @@ if (loading) return <div>Chargement...</div>;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Fonction pour supprimer un volontaire : 
+
 export async function deleteVolunteers(id) {
 
     const API_URL = 'http://localhost:3001/api/volunteers';
@@ -300,9 +356,10 @@ export async function deleteVolunteers(id) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Fonction pour modifier un volontaire : 
 
 export async function updateVolunteer(id, updateData) {
-    const API_URL = 'http:/localhost:3001/api/volunteers'; 
+    const API_URL = 'http://localhost:3001/api/volunteers'; 
 
     const response = await fetch(`${API_URL}/${id}`, {
         method: 'PUT',
@@ -318,3 +375,7 @@ export async function updateVolunteer(id, updateData) {
 
     return await response.json()
 }
+
+//////////////////////////////////////////////////////////////////////////////////
+
+
