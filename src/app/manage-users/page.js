@@ -29,6 +29,20 @@ export default function VolunteersList() {
         fetchVolunteers(); 
     }, []);
 
+
+    const handleDelete = async (id) => {
+        const confirmDelete = window.confirm("Voulez-vous supprimer ce bénévole ?");
+
+        if (!confirmDelete) return; 
+
+        try {
+            await deleteVolunteers(id);
+            setVolunteers((prev) => prev.filter((vol) => vol.id !== id)); 
+        } catch (err) {
+            alert("Erreur lors de la suppression: " + err.message); 
+        }
+    }
+
     if (loading) return <div>Chargement...</div>;
     if (error) return <div>Erreur serveur: {error}</div>;
 
@@ -48,6 +62,13 @@ export default function VolunteersList() {
                                 <p>{volunteer.mail}</p>
                                 {volunteer.location && <p>{volunteer.location}</p>}
                             </div>
+
+                            <button 
+                            onClick={() => handleDelete(volunteer.id)}
+                            className={styles.deleteButton} 
+                            >
+                                🗑️ Supprimer
+                            </button>
                         </div>
                     ))
                 )}
@@ -212,28 +233,6 @@ if (loading) return <div>Chargement...</div>;
                         className={styles.inputField}
                     />
 
-                    <input
-                        type="number"
-                        name="city_id"
-                        placeholder="ID Ville"
-                        value={formData.city_id}
-                        onChange={handleInputChange}
-                        className={styles.inputField}
-                    />
-
-                    <select
-                        name="waste_type"
-                        value={formData.waste_type}
-                        onChange={handleInputChange}
-                        className={styles.inputField}
-                    >
-                        <option value="">Sélectionner un type de déchet</option>
-                        {wasteTypes.map(type => (
-                            <option key={type.value} value={type.value}>
-                                {type.label}
-                            </option>
-                        ))}
-                    </select>
 
                     <button 
                         type="submit" 
@@ -255,6 +254,25 @@ if (loading) return <div>Chargement...</div>;
             </div>
         </div>
     )
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export async function deleteVolunteers(id) {
+
+    const API_URL = 'http//localhost:3001/api/volunteers';
+
+    const response = await fetch(`${API_URL}/${id}`, {
+        method:'DELETE',
+    });
+
+    if (!response.ok) {
+        throw new Error(`Erreur de supression: ${response.status}`);
+    }
+
+    return await response.json(); 
 }
 
 

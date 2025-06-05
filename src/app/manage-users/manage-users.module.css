@@ -16,9 +16,17 @@
 
 .add-volunteer-btn:hover {
   background-color: #218838;
-}/* volunteers-list.css 
+} */
 
-.volunteers-container {
+
+/* /////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
+
+
+
+
+
+
+/* .volunteers-container {
   max-width: 400px;
   margin: 0 auto;
   background-color: #f8f9fa;
@@ -217,5 +225,21 @@
   border-radius: 8px;
   font-size: 14px;
   cursor: pointer;
+} 
+  
+.deleteButton {
+    background-color: #ff4d4f;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
 }
+
+.deleteButton:hover {
+    background-color: #d9363e;
+}
+
+
 */
