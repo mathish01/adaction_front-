@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, use } from "react"; 
 import styles from "./manage-users.module.css"; 
+import { headers } from "next/headers";
 
 export default function VolunteersList() {
     const [volunteers, setVolunteers] = useState([]);
@@ -28,6 +29,20 @@ export default function VolunteersList() {
 
         fetchVolunteers(); 
     }, []);
+
+
+    const handleUpdate = async (id, updatedData) => {
+        try {
+            const updatedVolunteer = await updateVolunteer(id, updatedData);
+            setVolunteers((prev) =>
+            prev.map((vol) => (vol.id === id ? updatedVolunteer : vol))
+        );
+        alert("Bénévole mis à jour avec succès !");   
+        } catch (err) {
+            alert("Erreur lors de la mise à jour :" + err.message);
+        }
+    };
+
 
 
     const handleDelete = async (id) => {
@@ -68,6 +83,13 @@ export default function VolunteersList() {
                             className={styles.deleteButton} 
                             >
                                 🗑️ Supprimer
+                            </button>
+
+                            <button 
+                            onClick={() => handleUpdate(volunteer.id, updatedData)}
+                            className={styles.updateButton}
+                            >
+                                ✏️ Modifier
                             </button>
                         </div>
                     ))
@@ -262,7 +284,7 @@ if (loading) return <div>Chargement...</div>;
 
 export async function deleteVolunteers(id) {
 
-    const API_URL = 'http//localhost:3001/api/volunteers';
+    const API_URL = 'http://localhost:3001/api/volunteers';
 
     const response = await fetch(`${API_URL}/${id}`, {
         method:'DELETE',
@@ -276,3 +298,23 @@ export async function deleteVolunteers(id) {
 }
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+export async function updateVolunteer(id, updateData) {
+    const API_URL = 'http:/localhost:3001/api/volunteers'; 
+
+    const response = await fetch(`${API_URL}/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData),
+    });
+
+    if (!response.ok) {
+          throw new Error(`Erreur lors de la mise à jour: ${response.status}`);
+    }
+
+    return await response.json()
+}
