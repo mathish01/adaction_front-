@@ -63,6 +63,15 @@ export default function VolunteersList() {
     const [showCityDropdown, setShowCityDropdown] = useState(false);
     const [showAddForm, setShowAddForm] = useState(false); 
     const [success, setSuccess] = useState(false); 
+    const [editingVolunteer, setEditingVolunteer] = useState(null);
+    const [editFormData, setEditFormData] = useState({
+        firstname: '',
+        lastname: '',
+        mail: '',
+        password: '',
+        location: ''
+    });
+
 
     const [formData, setFormData] = useState({
         firstname: '',
@@ -124,6 +133,16 @@ const handleSearchSubmit = async (e) => {
     }
 };
 
+const startEdit = (volunteer) => {
+    setEditingVolunteer(volunteer.id);
+    setEditFormData({
+        firstname: volunteer.firstname,
+        lastname: volunteer.lastname,
+        mail: volunteer.mail,
+        password: '', 
+        location: volunteer.location || ''
+    });
+};
 
     const handleUpdate = async (id, updatedData) => {
         try {
@@ -137,6 +156,55 @@ const handleSearchSubmit = async (e) => {
         }
     };
 
+    const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData(prev => ({
+        ...prev,
+        [name]: value
+    }));
+};
+
+
+const saveEdit = async (id) => {
+    try {
+        // Créer un objet avec seulement les données à mettre à jour
+        const dataToUpdate = {
+            firstname: editFormData.firstname,
+            lastname: editFormData.lastname,
+            mail: editFormData.mail,
+            location: editFormData.location
+        };
+        
+        // N'inclure le mot de passe que s'il a été modifié
+        if (editFormData.password.trim() !== '') {
+            dataToUpdate.password = editFormData.password;
+        }
+
+        await handleUpdate(id, dataToUpdate);
+        setEditingVolunteer(null); 
+        setEditFormData({
+            firstname: '',
+            lastname: '',
+            mail: '',
+            password: '',
+            location: ''
+        });
+    } catch (err) {
+        alert("Erreur lors de la sauvegarde : " + err.message);
+    }
+};
+
+// Fonction pour annuler l'édition
+const cancelEdit = () => {
+    setEditingVolunteer(null);
+    setEditFormData({
+        firstname: '',
+        lastname: '',
+        mail: '',
+        password: '',
+        location: ''
+    });
+};
 
 
     const handleDelete = async (id) => {
@@ -374,33 +442,95 @@ const handleInputChange = (e) => {
                     ) : (
                         filteredVolunteers.map((volunteer) => (
                             <div key={volunteer.id} className={styles.volunteerCard}>
-                                <div className={styles.volunteerInfo}>
-                                    <h3 className={styles.volunteerName}>
-                                        {volunteer.firstname} {volunteer.lastname}
-                                    </h3>
-                                    <p className={styles.volunteerEmail}>{volunteer.mail}</p>
-                                    {volunteer.location && (
-                                        <p className={styles.volunteerLocation}>
-                                            📍 {volunteer.location}
-                                        </p>
-                                    )}
-                                </div>
+                                {editingVolunteer === volunteer.id ? (
+                                    <div className={styles.editForm}>
+                                        <input
+                                            type="text"
+                                            name="firstname"
+                                            value={editFormData.firstname}
+                                            onChange={handleEditInputChange}
+                                            className={styles.inputField}
+                                            placeholder="Prénom"
+                                        />
+                                        <input
+                                            type="text"
+                                            name="lastname"
+                                            value={editFormData.lastname}
+                                            onChange={handleEditInputChange}
+                                            className={styles.inputField}
+                                            placeholder="Nom"
+                                        />
+                                        <input
+                                            type="email"
+                                            name="mail"
+                                            value={editFormData.mail}
+                                            onChange={handleEditInputChange}
+                                            className={styles.inputField}
+                                            placeholder="Email"
+                                        />
+                                        <input
+                                            type="password"
+                                            name="password"
+                                            value={editFormData.password}
+                                            onChange={handleEditInputChange}
+                                            className={styles.inputField}
+                                            placeholder="Nouveau mot de passe (optionnel)"
+                                        />
+                                        <input
+                                            type="text"
+                                            name="location"
+                                            value={editFormData.location}
+                                            onChange={handleEditInputChange}
+                                            className={styles.inputField}
+                                            placeholder="Localisation"
+                                        />
+                                        <div className={styles.editButtons}>
+                                            <button 
+                                                onClick={() => saveEdit(volunteer.id)}
+                                                className={styles.saveButton}
+                                            >
+                                                ✅ Sauvegarder
+                                            </button>
+                                            <button 
+                                                onClick={cancelEdit}
+                                                className={styles.cancelEditButton}
+                                            >
+                                                ❌ Annuler
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                   
+                                    <>
+                                        <div className={styles.volunteerInfo}>
+                                            <h3 className={styles.volunteerName}>
+                                                {volunteer.firstname} {volunteer.lastname}
+                                            </h3>
+                                            <p className={styles.volunteerEmail}>{volunteer.mail}</p>
+                                            {volunteer.location && (
+                                                <p className={styles.volunteerLocation}>
+                                                    📍 {volunteer.location}
+                                                </p>
+                                            )}
+                                        </div>
 
-                                <div className={styles.actionButtons}>
-                                    <button 
-                                        onClick={() => handleUpdate(volunteer.id)}
-                                        className={styles.updateButton}
-                                    >
-                                        ✏️ 
-                                    </button>
+                                        <div className={styles.actionButtons}>
+                                            <button 
+                                                onClick={() => startEdit(volunteer)}
+                                                className={styles.updateButton}
+                                            >
+                                                ✏️ 
+                                            </button>
 
-                                    <button 
-                                        onClick={() => handleDelete(volunteer.id)}
-                                        className={styles.deleteButton}
-                                    >
-                                        🗑️ 
-                                    </button>
-                                </div>
+                                            <button 
+                                                onClick={() => handleDelete(volunteer.id)}
+                                                className={styles.deleteButton}
+                                            >
+                                                🗑️ 
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         ))
                     )}
@@ -408,4 +538,4 @@ const handleInputChange = (e) => {
             </div>
         </div>
     );
-}
+} 
