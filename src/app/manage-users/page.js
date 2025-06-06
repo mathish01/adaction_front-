@@ -156,6 +156,55 @@ const startEdit = (volunteer) => {
         }
     };
 
+    const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData(prev => ({
+        ...prev,
+        [name]: value
+    }));
+};
+
+
+const saveEdit = async (id) => {
+    try {
+        // Créer un objet avec seulement les données à mettre à jour
+        const dataToUpdate = {
+            firstname: editFormData.firstname,
+            lastname: editFormData.lastname,
+            mail: editFormData.mail,
+            location: editFormData.location
+        };
+        
+        // N'inclure le mot de passe que s'il a été modifié
+        if (editFormData.password.trim() !== '') {
+            dataToUpdate.password = editFormData.password;
+        }
+
+        await handleUpdate(id, dataToUpdate);
+        setEditingVolunteer(null); 
+        setEditFormData({
+            firstname: '',
+            lastname: '',
+            mail: '',
+            password: '',
+            location: ''
+        });
+    } catch (err) {
+        alert("Erreur lors de la sauvegarde : " + err.message);
+    }
+};
+
+// Fonction pour annuler l'édition
+const cancelEdit = () => {
+    setEditingVolunteer(null);
+    setEditFormData({
+        firstname: '',
+        lastname: '',
+        mail: '',
+        password: '',
+        location: ''
+    });
+};
 
 
     const handleDelete = async (id) => {
@@ -394,7 +443,6 @@ const handleInputChange = (e) => {
                         filteredVolunteers.map((volunteer) => (
                             <div key={volunteer.id} className={styles.volunteerCard}>
                                 {editingVolunteer === volunteer.id ? (
-                                    // ✅ MODE ÉDITION
                                     <div className={styles.editForm}>
                                         <input
                                             type="text"
@@ -452,7 +500,7 @@ const handleInputChange = (e) => {
                                         </div>
                                     </div>
                                 ) : (
-                                    // ✅ MODE AFFICHAGE NORMAL
+                                   
                                     <>
                                         <div className={styles.volunteerInfo}>
                                             <h3 className={styles.volunteerName}>
