@@ -209,39 +209,39 @@ const handleInputChange = (e) => {
     if (error) return <div>Erreur serveur: {error}</div>;
 
    return (
-          <div style={styles.container}>
+         <div className={styles.container} >
             {/* Header */}
-            <div style={styles.header}>
-                <div style={styles.headerTitle}>
+            <div className={styles.header}>
+                <div className={styles.headerTitle}>
                     <span style={{ fontSize: '24px' }}>♻️</span>
-                    <h1 style={styles.headerTitleText}>Adaction</h1>
+                    <h1 className={styles.headerTitleText}>Adaction</h1>
                 </div>
-                <p style={styles.headerSubtitle}>
+                <p className={styles.headerSubtitle}>
                     Agir pour un environnement plus propre
                 </p>
             </div>
 
             {/* Navigation Tabs */}
-            <div style={styles.navigation}>
-                <div style={styles.navItemActive}>
-                    <span style={styles.navIcon}>👥</span>
-                    <span style={styles.navTextActive}>
+            <div className={styles.navigation}>
+                <div className={styles.navItemActive}>
+                    <span className={styles.navIcon}>👥</span>
+                    <span className={styles.navTextActive}>
                         Gestion des bénévoles
                     </span>
                 </div>
-                <div style={styles.navItem}>
-                    <span style={styles.navIconInactive}>🏆</span>
-                    <span style={styles.navTextInactive}>
+                <div className={styles.navItem}>
+                    <span className={styles.navIconInactive}>🏆</span>
+                    <span className={styles.navTextInactive}>
                         Leaderboard
                     </span>
                 </div>
             </div>
 
-            <div style={styles.mainContainer}>
+            <div className={styles.mainContainer}>
                 {/* Add Volunteer Button */}
                 <button
                     onClick={() => setShowAddForm(!showAddForm)}
-                    style={styles.addButton}
+                    className={styles.addButton}
                 >
                     <span>👥</span>
                     Ajouter un.e bénévole
@@ -249,7 +249,7 @@ const handleInputChange = (e) => {
 
                 {/* Add Volunteer Form */}
                 {showAddForm && (
-                    <div style={styles.formContainer}>
+                    <div className={styles.formContainer}>
                         <input
                             type="text"
                             name="firstname"
@@ -257,7 +257,7 @@ const handleInputChange = (e) => {
                             value={formData.firstname}
                             onChange={handleInputChange}
                             required
-                            style={styles.inputField}
+                            className={styles.inputField}
                         />
 
                         <input
@@ -267,7 +267,7 @@ const handleInputChange = (e) => {
                             value={formData.lastname}
                             onChange={handleInputChange}
                             required
-                            style={styles.inputField}
+                            className={styles.inputField}
                         />
 
                         <input
@@ -277,7 +277,7 @@ const handleInputChange = (e) => {
                             value={formData.mail}
                             onChange={handleInputChange}
                             required
-                            style={styles.inputField}
+                            className={styles.inputField}
                         />
 
                         <input
@@ -287,7 +287,7 @@ const handleInputChange = (e) => {
                             value={formData.password}
                             onChange={handleInputChange}
                             required
-                            style={styles.inputField}
+                            className={styles.inputField}
                         />
 
                         <input
@@ -296,21 +296,21 @@ const handleInputChange = (e) => {
                             placeholder="Localisation"
                             value={formData.location}
                             onChange={handleInputChange}
-                            style={styles.inputField}
+                            className={styles.inputField}
                         />
 
-                        <div style={styles.buttonContainer}>
+                        <div className={styles.buttonContainer}>
                             <button 
                                 onClick={handleSubmit}
                                 disabled={loading}
-                                style={styles.submitButton}
+                                className={styles.submitButton}
                             >
                                 {loading ? 'Ajout en cours...' : 'Confirmer l\'ajout'}
                             </button>
 
                             <button 
                                 onClick={() => setShowAddForm(false)}
-                                style={styles.cancelButton}
+                                className={styles.cancelButton}
                             >
                                 Annuler
                             </button>
@@ -318,13 +318,13 @@ const handleInputChange = (e) => {
                     </div>
                 )}
 
-                {success && <div style={styles.success}>Bénévole ajouté avec succès !</div>}
+                {success && <div className={styles.success}>Bénévole ajouté avec succès !</div>}
 
                 {/* Barre de recherche */}
                 <input
                     type="text"
                     placeholder="🔍 Rechercher un.e bénévole"
-                    style={styles.searchInput}
+                    className={styles.searchInput}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     onKeyPress={(e) => {
@@ -335,12 +335,12 @@ const handleInputChange = (e) => {
                 />
 
                 {/* City Filter */}
-                <div style={{ position: 'relative' }}>
+                <div className={styles.cityFilterContainer}>
                     <button
                         onClick={() => setShowCityDropdown(!showCityDropdown)}
-                        style={styles.cityButton}
+                        className={styles.cityButton}
                     >
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span className={styles.cityButtonContent}>
                             <span>📍</span>
                             {selectedCity}
                         </span>
@@ -348,7 +348,7 @@ const handleInputChange = (e) => {
                     </button>
                     
                     {showCityDropdown && (
-                        <div style={styles.cityDropdown}>
+                        <div className={styles.cityDropdown}>
                             {cities.map(city => (
                                 <div
                                     key={city}
@@ -356,10 +356,7 @@ const handleInputChange = (e) => {
                                         setSelectedCity(city);
                                         setShowCityDropdown(false);
                                     }}
-                                    style={{
-                                        ...styles.cityOption,
-                                        backgroundColor: selectedCity === city ? '#f0f8ff' : 'white'
-                                    }}
+                                    className={`${styles.cityOption} ${selectedCity === city ? styles.cityOptionSelected : ''}`}
                                 >
                                     {city}
                                 </div>
@@ -371,35 +368,35 @@ const handleInputChange = (e) => {
                 {/* Volunteers List */}
                 <div>
                     {filteredVolunteers.length === 0 ? (
-                        <p style={styles.noResults}>
+                        <p className={styles.noResults}>
                             Aucun bénévole trouvé
                         </p>
                     ) : (
                         filteredVolunteers.map((volunteer) => (
-                            <div key={volunteer.id} style={styles.volunteerCard}>
-                                <div style={styles.volunteerInfo}>
-                                    <h3 style={styles.volunteerName}>
+                            <div key={volunteer.id} className={styles.volunteerCard}>
+                                <div className={styles.volunteerInfo}>
+                                    <h3 className={styles.volunteerName}>
                                         {volunteer.firstname} {volunteer.lastname}
                                     </h3>
-                                    <p style={styles.volunteerEmail}>{volunteer.mail}</p>
+                                    <p className={styles.volunteerEmail}>{volunteer.mail}</p>
                                     {volunteer.location && (
-                                        <p style={styles.volunteerLocation}>
+                                        <p className={styles.volunteerLocation}>
                                             📍 {volunteer.location}
                                         </p>
                                     )}
                                 </div>
 
-                                <div style={styles.actionButtons}>
+                                <div className={styles.actionButtons}>
                                     <button 
                                         onClick={() => handleUpdate(volunteer.id)}
-                                        style={styles.updateButton}
+                                        className={styles.updateButton}
                                     >
                                         ✏️ 
                                     </button>
 
                                     <button 
                                         onClick={() => handleDelete(volunteer.id)}
-                                        style={styles.deleteButton} 
+                                        className={styles.deleteButton}
                                     >
                                         🗑️ 
                                     </button>
