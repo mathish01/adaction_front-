@@ -1,6 +1,7 @@
 'use client';
-
+import Link from "next/link"
 import { useState } from 'react';
+import { Sprout, PackagePlus, Heart, UserRound } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -61,11 +62,15 @@ export default function LoginPage() {
         />
 
         <button type="submit">Se connecter</button>
-
+    
+     <Link href="/manage-users" className="navbar-link"> <UserRound className="icon" style={{ marginLeft: '0.5rem' }} />  
+              Gestion des profils
+            </Link>
         <p role="status" aria-live="polite">
           {message}
         </p>
       </form>
+     
     </main>
   );
 }

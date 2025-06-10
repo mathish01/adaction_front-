@@ -20,7 +20,7 @@ export default function Navbar() {
       <Link href="/don" className="navbar-link"> <Heart className="icon" style={{ marginLeft: '0.5rem' }} />  
         Dons
       </Link>
-      <Link href="/profil" className="navbar-link"> <UserRound className="icon" style={{ marginLeft: '0.5rem' }} />  
+      <Link href="/authentification" className="navbar-link"> <UserRound className="icon" style={{ marginLeft: '0.5rem' }} />  
         Profil
       </Link>
       </div>

@@ -279,7 +279,7 @@ const handleInputChange = (e) => {
    return (
          <div className={styles.container} >
             {/* Header */}
-            <div className={styles.header}>
+            {/* <div className={styles.header}>
                 <div className={styles.headerTitle}>
                     <span style={{ fontSize: '24px' }}>♻️</span>
                     <h1 className={styles.headerTitleText}>Adaction</h1>
@@ -287,7 +287,7 @@ const handleInputChange = (e) => {
                 <p className={styles.headerSubtitle}>
                     Agir pour un environnement plus propre
                 </p>
-            </div>
+            </div> */}
 
             {/* Navigation Tabs */}
             <div className={styles.navigation}>
