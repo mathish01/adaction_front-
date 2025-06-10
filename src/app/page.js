@@ -9,7 +9,7 @@ export default function Home() {
         <section class="dashboard-card">
             <div class="dashboard-header">
                 <h2 id="welcome">Bonjour !</h2>
-                <div class="month-selector">
+                <div>
                     <button>&lt;</button>
                     <span id="current-month">juin 2025</span>
                     <button>&gt;</button>
