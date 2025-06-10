@@ -1,0 +1,68 @@
+.take-collect {
+    text-align: center;
+}
+
+
+.from-label {
+  padding: 20px;
+}
+
+.waste-item {
+  margin: 10px 0;
+  padding: 15px;
+  border-radius: 8px;
+  display: flex;
+  gap: 50px;
+  align-items: center;
+}
+
+.label-box {
+    width: 20rem;
+    height:3rem;
+    padding: .75rem;
+    border-radius: .5rem;
+    border: 2px solid #e5e7eb;
+    font-size: .875rem;
+    font-weight: 500;
+    transition: all .2s;
+    cursor: pointer;
+    background-color: #fff;
+    text-align: left;
+}
+
+.quantity-box {
+    width: 20rem;
+    padding: .75rem;
+    border-radius: .5rem;
+    border: 2px solid #e5e7eb;
+    font-size: .875rem;
+    font-weight: 500;
+    transition: all .2s;
+    cursor: pointer;
+    background-color: #fff;
+    text-align: left;
+}
+
+h2 {
+    font-size: 1rem;
+}
+
+.icon-minus {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.icon-minus:hover {
+  transform: scale(1.2);
+  /* color: #d9534f; */
+}
+
+.icon-plus {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.icon-plus:hover {
+  transform: scale(1.2);
+  /* color: #5cb85c; */
+}
