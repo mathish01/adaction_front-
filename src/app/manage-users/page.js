@@ -297,12 +297,12 @@ const handleInputChange = (e) => {
                         Gestion des bénévoles
                     </span>
                 </div>
-                <div className={styles.navItem}>
+                {/* <div className={styles.navItem}>
                     <span className={styles.navIconInactive}>🏆</span>
                     <span className={styles.navTextInactive}>
                         Leaderboard
                     </span>
-                </div>
+                </div> */}
             </div>
 
             <div className={styles.mainContainer}>

@@ -63,7 +63,7 @@ export default function LoginPage() {
 
         <button type="submit">Se connecter</button>
     
-     <Link href="/manage-users" className="navbar-link"> <UserRound className="icon" style={{ marginLeft: '0.5rem' }} />  
+     <Link href="/manage-users" className="manage"> <UserRound className="icon"  style={{ marginLeft: '0.5rem' }} />  
               Gestion des profils
             </Link>
         <p role="status" aria-live="polite">

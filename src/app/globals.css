@@ -166,6 +166,18 @@ header {
   color: #b91c1c; /* rouge pour les messages d'erreur */
 }
 
+.manage {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #059669;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+
 footer {
   width: 100%;
   text-align: center;
